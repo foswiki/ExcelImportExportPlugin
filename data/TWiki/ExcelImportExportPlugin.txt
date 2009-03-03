@@ -144,10 +144,8 @@ Look at the example in Sandbox...
 |  CPAN Dependencies: | <table border="1"><tr><th>Name</th><th>Version</th><th>Description</th></tr><tr><td align="left">Spreadsheet::ParseExcel</td><td align="left">Required. Available from [[http://search.cpan.org][CPAN]].</td></tr><tr><td align="left">Spreadsheet::WriteExcel</td><td align="left">Required. Available from [[http://search.cpan.org][CPAN]].</td></tr><tr><td align="left">Date::Manip</td><td align="left">Required. Available from [[http://search.cpan.org][CPAN]].</td></tr></table> |
 |  Other Dependencies: | none |
 |  Perl Version: | 5.005 |
-|  Foswiki:Extensions/Benchmark: | %SYSTEMWEB%.GoodStyle nn%, %SYSTEMWEB%.FormattedSearch nn%, %TOPIC% nn% |
 |  Plugin Home: | http://foswiki.org/Extensions/%TOPIC% |
 |  Feedback: | http://foswiki.org/Extensions/%TOPIC%Dev |
-|  Appraisal: | http://foswiki.org/Extensions/%TOPIC%Appraisal |
 
 __Related Topics:__ [[%SYSTEMWEB%.Plugins][Plugins]], %SYSTEMWEB%.DeveloperDocumentationCategory, %SYSTEMWEB%.AdminDocumentationCategory, %SYSTEMWEB%.DefaultPreferences, %USERSWEB%.SitePreferences, Foswiki:Extensions.ExcelImportExportAddOn
 
