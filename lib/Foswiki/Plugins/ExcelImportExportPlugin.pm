@@ -37,7 +37,7 @@ use vars qw( $VERSION $RELEASE $debug $pluginName );
 
 $VERSION = '$Rev: 0$';
 
-$RELEASE = 'Dakar';
+$RELEASE = 'Foswiki';
 
 $pluginName = 'ExcelImportExportPlugin';
 

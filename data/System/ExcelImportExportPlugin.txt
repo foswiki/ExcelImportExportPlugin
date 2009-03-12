@@ -1,23 +1,23 @@
 %META:TOPICINFO{author="ProjectContributor" date="1111929255" format="1.0" version="8"}%
 ---+ <nop>ExcelImportExportPlugin
 
-This plugin renders an attached Excel spreadsheet as a TWiki table, and vice versa. It also provides scripts to generate a set of topics from an Excel spreadsheet, and vice versa. In detail, the plugin supports the following use cases:
+This plugin renders an attached Excel spreadsheet as a Foswiki table, and vice versa. It also provides scripts to generate a set of topics from an Excel spreadsheet, and vice versa. In detail, the plugin supports the following use cases:
    * Import from Excel
-      * Upload an Excel spreadsheet to TWiki and generate a table such that each row of the resultant table corresponds to a row in the spreadsheet.
-      * Upload an Excel spreadsheet to TWiki and generate a topic for each row in the spreadsheet such that each column corresponds to a form field.
-      * Attach an Excel spreadsheat to a TWiki topic and render its content as a TWiki table whenever the topic is viewed.
+      * Upload an Excel spreadsheet to Foswiki and generate a table such that each row of the resultant table corresponds to a row in the spreadsheet.
+      * Upload an Excel spreadsheet to Foswiki and generate a topic for each row in the spreadsheet such that each column corresponds to a form field.
+      * Attach an Excel spreadsheat to a Foswiki topic and render its content as a Foswiki table whenever the topic is viewed.
    * Export to Excel
-      * Generate an Excel spreadsheet from a TWiki table, such that each row in the table corresponds to a row in the resultant spreadsheet.
+      * Generate an Excel spreadsheet from a Foswiki table, such that each row in the table corresponds to a row in the resultant spreadsheet.
       * Generate an Excel spreadsheet from a table returned as the result of a %SYSTEMWEB%.FormattedSearch, such that each row in the table corresponds to a row in the resultant spreadsheet.
       * Generate an Excel spreadsheet from all topics that have an indicated form. Each topic results in a row of the spreadsheet, such that each form field is mapped to a column in the spreadsheet.
 
-The code of this plugin is based on the Foswiki:Extensions.ExcelImportExportAddOn by TWiki:Main.ClausLanghans.
+The code of this plugin is based on the Foswiki:Extensions.ExcelImportExportAddOn by Foswiki:Main.ClausLanghans.
 
 ---++ General comments
 
-This plugin establishes a correspondence between a spreadsheet and a TWiki table, or a set of TWiki topics. The spreadsheet must have a header row which defines the schema of the database represented by the spreadsheet. 
+This plugin establishes a correspondence between a spreadsheet and a Foswiki table, or a set of Foswiki topics. The spreadsheet must have a header row which defines the schema of the database represented by the spreadsheet. 
 
-The columns of the spreadsheet and the columns of the TWiki table are correlated via a TWiki form and/or a more detailed mapping table, see [[#ColumnMapping]].
+The columns of the spreadsheet and the columns of the Foswiki table are correlated via a Foswiki form and/or a more detailed mapping table, see [[#ColumnMapping]].
 
 
 ---++ Syntax Rules
@@ -32,7 +32,7 @@ The columns of the spreadsheet and the columns of the TWiki table are correlated
 
 
    * Syntax: =%<nop>UPLOADEXCEL2TABLE{...}%=
-   * Synopsis: An Excel spreadsheet can be uploaded and a TWiki table will be generated such that each row of the table corresponds to a row in the uploaded spreadsheet.
+   * Synopsis: An Excel spreadsheet can be uploaded and a Foswiki table will be generated such that each row of the table corresponds to a row in the uploaded spreadsheet.
    * Supported parameters:
    | *Parameter:* | *Description:* | *Default:* |
    | =topic="..."= | Default Parameter: The topic where the resultant table will be inserted. The first table found in this topic will be replaced by the generated table. | Current topic |
@@ -70,10 +70,10 @@ The columns of the spreadsheet and the columns of the TWiki table are correlated
 
 Please see the example in Sandbox.IssueExcelExportImport for more detail.
 
----++ Mapping between Excel Spreadsheet and TWiki Table
+---++ Mapping between Excel Spreadsheet and Foswiki Table
 
 #ColumnMapping
-In its simplest form, the correspondence between the Excel spreadsheet and the TWiki table is established through a %SYSTEMWEB%.DataForms template. This for corresponds to the header row in the spreadsheet: each field in the form is the same as a column field in the header row. All fields except date fields are assumed to be of type text.
+In its simplest form, the correspondence between the Excel spreadsheet and the Foswiki table is established through a %SYSTEMWEB%.DataForms template. This for corresponds to the header row in the spreadsheet: each field in the form is the same as a column field in the header row. All fields except date fields are assumed to be of type text.
 
 Note that the order of the fields need not be the same, nor do all the column fields have to be present. Missing fields will be omitted in the import or export operations.
 
@@ -94,7 +94,7 @@ Plugin settings are stored as preferences variables. To reference
 a plugin setting write ==%<nop>&lt;plugin&gt;_&lt;setting&gt;%==, i.e. ==%<nop>SMARTEDITPLUGIN_SHORTDESCRIPTION%==
 
    * One line description, is shown in the %SYSTEMWEB%.TextFormattingRules topic:
-      * Set SHORTDESCRIPTION = Renders an attached Excel spreadsheet as TWiki table
+      * Set SHORTDESCRIPTION = Renders an attached Excel spreadsheet as Foswiki table
 
    * Debug plugin: (See output in =data/debug.txt=)
       * Set DEBUG = 0
@@ -105,24 +105,12 @@ _Note: The parameters for the tags and scripts can also be defined in settings._
 
 ---++ Plugin Installation Instructions
 
-__Note:__ You do not need to install anything on the browser to use this add-on. The following instructions are for the administrator who installs the add-on on the server where TWiki is running. 
+__Note:__ You do not need to install anything on the browser to use this add-on. The following instructions are for the administrator who installs the add-on on the server where Foswiki is running. 
 
    * Download the archive from the Plugin Home (see below)
-   * Unpack the archive in your twiki installation directory. Content:
+   * Unpack the archive in your installation directory. Content:
      | *File:* | *Description:* |
-   | ==lib/Foswiki/Plugins/ExcelImportExportPlugin.pm== |  |
-   | ==lib/Foswiki/Plugins/ExcelImportExportPlugin/Import.pm== |  |
-   | ==lib/Foswiki/Plugins/ExcelImportExportPlugin/Export.pm== |  |
-   | ==data/TWiki/ExcelImportExportPlugin.txt== |  |
-   | ==bin/excel2topics== |  |
-   | ==bin/topics2excel== |  |
-   | ==bin/table2excel== |  |
-   | ==bin/uploadexcel== |  |
-   | ==data/Sandbox/ExcelExport1.txt== |  |
-   | ==data/Sandbox/ExcelImport1.txt== |  |
-   | ==data/Sandbox/IssueExcelExportImport.txt== |  |
-   | ==data/Sandbox/IssueTrackingForm.txt== |  |
-   | ==pub/Sandbox/IssueExcelExportImport/IssueExcelExportImport.xls== |  |
+     %$MANIFEST%
 
    * Make sure that all files are readable by the web server user, that the scripts are executable, and that the scripts are given the proper access rights in your =.htaccess= file, if applicable.     
 
@@ -131,22 +119,19 @@ Look at the example in Sandbox...
 
 ---++ Plugin Info
 
-|  Plugin Author: | TWiki:Main.ThomasWeigert, based on code by TWiki:Main.ClausLanghans |
+|  Plugin Author: | Foswiki:Main.ThomasWeigert, based on code by Foswiki:Main.ClausLanghans |
 |  Copyright: | &copy; 2001-2008, %SYSTEMWEB%.ProjectContributor |
 |  License: | GPL ([[http://www.gnu.org/copyleft/gpl.html][GNU General Public License]]) |
-|  Plugin Version: | July 2008 |
+|  Plugin Version: | %$VERSION% |
 |  Change History: | <!-- versions below in reverse order -->&nbsp; |
-|  July 2008: | 4.2.x compatibility, 
-                Update Topic data from changed Form definition. - SvenDowideit@wikiring.com |
+|  12 Mar 2009: | converted to foswiki - Foswiki:Main.MichaelDaum |
+|  01 Jul 2008: | 4.2.x compatibility, Update Topic data from changed Form definition. - SvenDowideit@wikiring.com |
 |  04 Nov 2006: | Added abilty to upload spreadsheet. Rewritten for consistency and made more resilient. Enhanced documentation. |
 |  13 Aug 2006: | Initial version |
-|  TWiki Dependency: |  |
-|  CPAN Dependencies: | <table border="1"><tr><th>Name</th><th>Version</th><th>Description</th></tr><tr><td align="left">Spreadsheet::ParseExcel</td><td align="left">Required. Available from [[http://search.cpan.org][CPAN]].</td></tr><tr><td align="left">Spreadsheet::WriteExcel</td><td align="left">Required. Available from [[http://search.cpan.org][CPAN]].</td></tr><tr><td align="left">Date::Manip</td><td align="left">Required. Available from [[http://search.cpan.org][CPAN]].</td></tr></table> |
+|  Dependency: |  |
+|  CPAN Dependencies: | <table border="0"><tr><th>Name</th><th>Version</th></tr><tr><td align="left">Spreadsheet::ParseExcel</td><td align="left">Required. Available from [[http://search.cpan.org][CPAN]].</td></tr><tr><td align="left">Spreadsheet::WriteExcel</td><td align="left">Required. Available from [[http://search.cpan.org][CPAN]].</td></tr><tr><td align="left">Date::Manip</td><td align="left">Required. Available from [[http://search.cpan.org][CPAN]].</td></tr></table> |
 |  Other Dependencies: | none |
 |  Perl Version: | 5.005 |
 |  Plugin Home: | http://foswiki.org/Extensions/%TOPIC% |
 |  Feedback: | http://foswiki.org/Extensions/%TOPIC%Dev |
 
-__Related Topics:__ [[%SYSTEMWEB%.Plugins][Plugins]], %SYSTEMWEB%.DeveloperDocumentationCategory, %SYSTEMWEB%.AdminDocumentationCategory, %SYSTEMWEB%.DefaultPreferences, %USERSWEB%.SitePreferences, Foswiki:Extensions.ExcelImportExportAddOn
-
--- TWiki:Main.ThomasWeigert - 13 Aug 2006
