@@ -1,7 +1,7 @@
 # Plugin for Foswiki - The Free and Open Source Wiki, http://foswiki.org/
 #
 # (c) 2006 Motorola, thomas.weigert@motorola.com
-# (c) 2006 TWiki:Main.ClausLanghans
+# (c) 2006 Foswiki:Main.ClausLanghans
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
 # as published by the Free Software Foundation; either version 2
@@ -12,14 +12,13 @@
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 #
-# For licensing info read LICENSE file in the TWiki root.
+# For licensing info read LICENSE file in the Foswiki root.
 
-package TWiki::Plugins::ExcelImportExportPlugin::Export;
+package Foswiki::Plugins::ExcelImportExportPlugin::Export;
 
 use strict;
-use TWiki;
-use TWiki::Func;
-use TWiki::Form;
+use Foswiki::Func;
+use Foswiki::Form;
 use Spreadsheet::WriteExcel;
 use Date::Manip;
 
@@ -28,9 +27,9 @@ use Date::Manip;
 sub topics2excel {
 
     my $session = shift;
-    $TWiki::Plugins::SESSION = $session;
+    $Foswiki::Plugins::SESSION = $session;
 
-    my $query     = TWiki::Func::getCgiQuery();
+    my $query     = Foswiki::Func::getCgiQuery();
 ## SMELL: The spreadsheet _must_ be attached to the same topic where the map is
     my $web       = $session->{webName};
     my $basetopic = $session->{topicName};
@@ -63,7 +62,7 @@ sub topics2excel {
         qw(FORM TOPICPARENT UPLOADFILE NEWTOPICTEMPLATE FORCCEOVERWRITE TOPICCOLUMN DEBUG DATETIMEFORMAT)
       )
     {
-        my $value = &TWiki::Func::getPreferencesValue($key);
+        my $value = Foswiki::Func::getPreferencesValue($key);
         if ( defined $value and $value !~ /^\s*$/ ) {
             $config{$key} = $value;
             $config{$key} =~ s/^\s*//go;
@@ -74,15 +73,15 @@ sub topics2excel {
 ## SMELL: Need to sort out the preferences between setting and parameters....
     $config{MAPPING} = $query->param('map')      || $config{MAPPING};
     $config{FORM}    = $query->param('template') || $config{FORM};
-    $config{DEBUG} = $TWiki::Plugins::ExcelImportExportPlugin::debug;
+    $config{DEBUG} = $Foswiki::Plugins::ExcelImportExportPlugin::debug;
 
     if ( $config{FORM} eq '' ) {
         ## SMELL: Should we throw an oops alert instead?
-        TWiki::Func::writeDebug(
+        Foswiki::Func::writeDebug(
 "ExcelImportExportPlugin: No form definition given. No data will be exported."
         );
-        TWiki::Func::redirectCgiQuery( $query,
-            &TWiki::Func::getScriptUrl( $web, $basetopic, "view" ) );
+        Foswiki::Func::redirectCgiQuery( $query,
+            Foswiki::Func::getScriptUrl( $web, $basetopic, "view" ) );
     }
 
     my $xlsBlob;
@@ -149,7 +148,7 @@ sub topics2excel {
 
 ## SMELL: should normalize web/topic names
     # Get export information from form
-    my $form = new TWiki::Form( $session, $web, $config{FORM} );
+    my $form = new Foswiki::Form( $session, $web, $config{FORM} );
     my $fieldDefs = $form->{fields};
     foreach my $field ( @{$fieldDefs} ) {
 
@@ -157,7 +156,7 @@ sub topics2excel {
         my $name = $field->{title};
         $name =~ s/^\s*//go;
         $name =~ s/\s*$//go;
-        push( @sortorder, $name );
+        push( @sortorder, $name ) if $name;
 
         # TYPE
         my $type = $field->{type};
@@ -171,14 +170,14 @@ sub topics2excel {
         }
 
     }
-    push( @sortorder, $config{TOPICTEXT} );
-    push( @sortorder, $config{TOPICCOLUMN} );
+    push( @sortorder, $config{TOPICTEXT} ) if $config{TOPICTEXT};
+    push( @sortorder, $config{TOPICCOLUMN} ) if $config{TOPICCOLUMN};
 
     # Read in the mapping data to configure the upload fields (if present)
     if ( $config{MAPPING} ) {
-        my ( $meta, $text ) = &TWiki::Func::readTopic( $web, $config{MAPPING} );
+        my ( $meta, $text ) = Foswiki::Func::readTopic( $web, $config{MAPPING} );
 
-        # used code from TWiki::Forms
+        # used code from Foswiki::Forms
         $text =~
           s/\\\r?\n//go;    # remove trailing '\' and join continuation lines
         my $inBlock = 0;
@@ -293,17 +292,17 @@ sub topics2excel {
     # read all meta values and write them in the Excel sheet
     $col = 0;
     $row++;
-    foreach my $topic ( &TWiki::Func::getTopicList($web) ) {
+    foreach my $topic ( Foswiki::Func::getTopicList($web) ) {
 
         # BUG: first read the topic and that check the permissions
         if (
-            &TWiki::Func::checkAccessPermission(
-                'VIEW', &TWiki::Func::getWikiUserName(),
+            Foswiki::Func::checkAccessPermission(
+                'VIEW', Foswiki::Func::getWikiUserName(),
                 '', $topic, $web
             )
           )
         {
-            my ( $meta, $text ) = &TWiki::Func::readTopic( $web, $topic );
+            my ( $meta, $text ) = Foswiki::Func::readTopic( $web, $topic );
             if ( defined($meta->{FORM}[0]{name}) && $meta->{FORM}[0]{name} eq $config{FORM}
                 and not $topic =~ /$config{TEMPLATETOPIC}$/ )
             {    # Exclude the template topcic
@@ -323,7 +322,7 @@ sub topics2excel {
                         if ( $orientation{$name} eq 'v' ) {
                             $worksheet->write(
                                 $row, $col,
-                                &TWiki::Func::getScriptUrl(
+                                Foswiki::Func::getScriptUrl(
                                     $web, $topic, "edit"
                                 ),
                                 $topic,
@@ -333,7 +332,7 @@ sub topics2excel {
                         else {
                             $worksheet->write(
                                 $row, $col,
-                                &TWiki::Func::getScriptUrl(
+                                Foswiki::Func::getScriptUrl(
                                     $web, $topic, "edit"
                                 ),
                                 $topic,
@@ -373,11 +372,13 @@ sub topics2excel {
         }
     }
 
- #print "Content-type: application/vnd.ms-excel\n";
- # The Content-Disposition will generate a prompt to save  the file. If you want
- # to stream the file to the browser, comment out the following line.
- #print "Content-Disposition: attachment; filename=$xlsfile\n";
- #print "\n";
+    $query->header(-expire => 'now');
+
+   #print "Content-type: application/vnd.ms-excel\n";
+   # The Content-Disposition will generate a prompt to save  the file. If you want
+   # to stream the file to the browser, comment out the following line.
+   #print "Content-Disposition: attachment; filename=$xlsfile\n";
+   #print "\n";
 
     # The contents of the Excel file is returned to STDOUT
     $workbook->close() or die "Error closing file: $!";
@@ -388,9 +389,9 @@ sub topics2excel {
 sub table2excel {
 
     my $session = shift;
-    $TWiki::Plugins::SESSION = $session;
+    $Foswiki::Plugins::SESSION = $session;
 
-    my $query     = TWiki::Func::getCgiQuery();
+    my $query     = Foswiki::Func::getCgiQuery();
     my $web       = $session->{webName};
     my $basetopic = $session->{topicName};
     my $userName  = $session->{user};
@@ -424,7 +425,7 @@ sub table2excel {
         qw(FORM TOPICPARENT UPLOADFILE NEWTOPICTEMPLATE FORCCEOVERWRITE TOPICCOLUMN DEBUG DATETIMEFORMAT)
       )
     {
-        my $value = &TWiki::Func::getPreferencesValue($key);
+        my $value = Foswiki::Func::getPreferencesValue($key);
         if ( defined $value and $value !~ /^\s*$/ ) {
             $config{$key} = $value;
             $config{$key} =~ s/^\s*//go;
@@ -437,18 +438,18 @@ sub table2excel {
     $config{UPLOADTOPIC} = $query->param('uploadtopic') || $config{UPLOADTOPIC};
     $config{MAPPING}     = $query->param('map')         || $config{MAPPING};
     $config{FORM}        = $query->param('template')    || $config{FORM};
-    $config{DEBUG} = $TWiki::Plugins::ExcelImportExportPlugin::debug;
+    $config{DEBUG} = $Foswiki::Plugins::ExcelImportExportPlugin::debug;
 
     ( $config{UPLOADWEB}, $config{UPLOADTOPIC} ) =
       $session->normalizeWebTopicName( $web, $config{UPLOADTOPIC} );
 
 ## SMELL: If we later find out we cannot infer the header, we have already started writing the spreadsheet which sends that to the screen. We never get a chance to throw the exception. Either insist that form is defined or move the checking earlier.
     if ( $config{FORM} eq '' ) {
-        TWiki::Func::writeDebug(
+        Foswiki::Func::writeDebug(
 "ExcelImportExportPlugin: No form definition given. Headers will be derived from table."
         );
 ## SMELL: Not a nice alert
-        #    throw TWiki::OopsException( 'alerts',
+        #    throw Foswiki::OopsException( 'alerts',
         #				def => 'generic',
         #				web => $_[2],
         #				topic => $_[1],
@@ -456,14 +457,16 @@ sub table2excel {
 
     }
 
-    my $xlsfile = "-";
+    my $xlsBlob;
+    open my $fh, '>', \$xlsBlob or die "Failed to open filehandle: $!";
+    binmode($fh);
 
-#  my $xlsfile = $TWiki::cfg{PubDir}."/$config{UPLOADWEB}/$config{UPLOADTOPIC}/$config{UPLOADFILE}.xls";
-#  $xlsfile = TWiki::Sandbox::untaintUnchecked( $xlsfile );
+#  my $xlsfile = $Foswiki::cfg{PubDir}."/$config{UPLOADWEB}/$config{UPLOADTOPIC}/$config{UPLOADFILE}.xls";
+#  $xlsfile = Foswiki::Sandbox::untaintUnchecked( $xlsfile );
 
     # Create a new Excel workbook
-    my $workbook = Spreadsheet::WriteExcel->new($xlsfile)
-      or die "Problems creating new Excel $xlsfile file: $!";
+    my $workbook = Spreadsheet::WriteExcel->new($fh)
+      or die "Problems creating new excel file: $!";
 
     # Add a worksheet
     my $worksheet   = $workbook->add_worksheet();
@@ -523,7 +526,7 @@ sub table2excel {
     if ( $config{FORM} ) {
 
         # Get export information from form
-        my $form = new TWiki::Form( $session, $web, $config{FORM} );
+        my $form = new Foswiki::Form( $session, $web, $config{FORM} );
         my $fieldDefs = $form->{fields};
         foreach my $field ( @{$fieldDefs} ) {
 
@@ -552,9 +555,9 @@ sub table2excel {
 
     # Read in the mapping data to configure the upload fields (if present)
     if ( $config{MAPPING} ) {
-        my ( $meta, $text ) = &TWiki::Func::readTopic( $web, $config{MAPPING} );
+        my ( $meta, $text ) = Foswiki::Func::readTopic( $web, $config{MAPPING} );
 
-        # used code from TWiki::Forms
+        # used code from Foswiki::Forms
         $text =~
           s/\\\r?\n//go;    # remove trailing '\' and join continuation lines
         my $inBlock = 0;
@@ -668,13 +671,13 @@ sub table2excel {
     }
 
     # read the table and write them in the Excel sheet
-    my ( $meta, $text ) = &TWiki::Func::readTopic( $web, $basetopic );
+    my ( $meta, $text ) = Foswiki::Func::readTopic( $web, $basetopic );
 
     # Need to expand searches to handle tables generated from search.
     ## SMELL: Need to expand FormQueryPlugin based searches also...
     ## SMELL: What if there are tags in the search?
     $text =~
-s/%SEARCH{(.*)}%/$session->_SEARCH( new TWiki::Attrs($1), $basetopic, $web )/geo;
+s/%SEARCH{(.*)}%/$session->_SEARCH( new Foswiki::Attrs($1), $basetopic, $web )/geo;
 
     my $insideTable = 0;
     my $beforeTable = 0;
@@ -714,7 +717,7 @@ s/%SEARCH{(.*)}%/$session->_SEARCH( new TWiki::Attrs($1), $basetopic, $web )/geo
                 else {
                     unless ( $config{FORM} || $config{MAPPING} ) {
 ## SMELL: Not a nice alert
-                        throw TWiki::OopsException(
+                        throw Foswiki::OopsException(
                             'alerts',
                             def    => 'generic',
                             web    => $_[2],
@@ -782,24 +785,24 @@ s/%SEARCH{(.*)}%/$session->_SEARCH( new TWiki::Attrs($1), $basetopic, $web )/geo
         }
     }
 
-    TWiki::Func::writeDebug( "Exported " . ( $row - 2 ) . " rows." )
+    Foswiki::Func::writeDebug( "Exported " . ( $row - 2 ) . " rows." )
       if $config{DEBUG};
 
-    print $query->header( -type => 'application/vnd.ms-excel',
-        -expire => 'now' );
+    $query->header( -expire => 'now' );
 
- # The Content-Disposition will generate a prompt to save  the file. If you want
- # to stream the file to the browser, comment out the following line.
- #print "Content-Disposition: attachment; filename=$xlsfile\n";
- #print "\n";
+   # The Content-Disposition will generate a prompt to save  the file. If you want
+   # to stream the file to the browser, comment out the following line.
+   #print "Content-Disposition: attachment; filename=$xlsfile\n";
+   #print "\n";
 
     # The contents of the Excel file
     $workbook->close() or die "Error closing file: $!";
 
     ## If we store the file in pub, why not create an attachment?
-#  my $url = TWiki::Func::getScriptUrl( $web, $basetopic, "viewfile" ) . "?rev=;filename=$config{UPLOADFILE}.xls";
-#  TWiki::Func::redirectCgiQuery( $query, $url );
+#  my $url = Foswiki::Func::getScriptUrl( $web, $basetopic, "viewfile" ) . "?rev=;filename=$config{UPLOADFILE}.xls";
+#  Foswiki::Func::redirectCgiQuery( $query, $url );
 
+    $session->writeCompletePage($xlsBlob, '', 'application/vnd.ms-excel');
 }
 
 1;

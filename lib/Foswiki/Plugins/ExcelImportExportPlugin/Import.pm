@@ -1,7 +1,7 @@
 # Plugin for Foswiki - The Free and Open Source Wiki, http://foswiki.org/
 #
 # (c) 2006 Motorola, thomas.weigert@motorola.com
-# (c) 2006 TWiki:Main.ClausLanghans
+# (c) 2006 Foswiki:Main.ClausLanghans
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
 # as published by the Free Software Foundation; either version 2
@@ -12,23 +12,21 @@
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 #
-# For licensing info read LICENSE file in the TWiki root.
+# For licensing info read LICENSE file in the Foswiki root.
 
-package TWiki::Plugins::ExcelImportExportPlugin::Import;
+package Foswiki::Plugins::ExcelImportExportPlugin::Import;
 
 use strict;
 use Spreadsheet::ParseExcel;
-use TWiki;
-use TWiki::Func;
-use TWiki::Meta;
-use TWiki::Form;
+use Foswiki::Func;
+use Foswiki::Form;
 
 sub excel2topics {
 
     my $session = shift;
-    $TWiki::Plugins::SESSION = $session;
+    $Foswiki::Plugins::SESSION = $session;
 
-    my $query     = TWiki::Func::getCgiQuery();
+    my $query     = Foswiki::Func::getCgiQuery();
     my $webName = $session->{webName};
     my $topic   = $session->{topicName};
     my $user    = $session->{user};
@@ -47,7 +45,7 @@ sub excel2topics {
         qw(FORM TOPICPARENT UPLOADFILE NEWTOPICTEMPLATE FORCCEOVERWRITE TOPICCOLUMN DEBUG)
       )
     {
-        my $value = &TWiki::Func::getPreferencesValue($key) || '';
+        my $value = Foswiki::Func::getPreferencesValue($key) || '';
         if ( defined $value and $value !~ /^\s*$/ ) {
             $config{$key} = $value;
             $config{$key} =~ s/^\s*//go;
@@ -61,12 +59,12 @@ sub excel2topics {
     $config{TOPICTEXT}   = $query->param('topictext')   || $config{TOPICTEXT};
     $config{NEWTOPICTEMPLATE} = $query->param('newtopictemplate')
       || $config{NEWTOPICTEMPLATE};
-    $config{DEBUG} = $TWiki::Plugins::ExcelImportExportPlugin::debug;
+    $config{DEBUG} = $Foswiki::Plugins::ExcelImportExportPlugin::debug;
 
-    #use the current definition of the TWikiForm
-    my $formDef = new TWiki::Form( $session, $webName, $config{FORM} );
+    #use the current definition of the DataForm
+    my $formDef = new Foswiki::Form( $session, $webName, $config{FORM} );
     unless ($formDef) {
-        throw TWiki::OopsException(
+        throw Foswiki::OopsException(
             'attention',
             def    => 'no_form_def',
             web    => $session->{webName},
@@ -82,13 +80,13 @@ sub excel2topics {
         $log .= "  $key=" . ( $config{$key} || 'undef' ) . "\n";
     }
 
-    my $xlsfile = $TWiki::cfg{PubDir} . "/$webName/$topic/$config{UPLOADFILE}";
-    $xlsfile = TWiki::Sandbox::untaintUnchecked($xlsfile);
+    my $xlsfile = $Foswiki::cfg{PubDir} . "/$webName/$topic/$config{UPLOADFILE}";
+    $xlsfile = Foswiki::Sandbox::untaintUnchecked($xlsfile);
     $log .= "  attachment file=$webName/$topic/$config{UPLOADFILE}\n";
 
     my $Book = Spreadsheet::ParseExcel::Workbook->Parse($xlsfile);
     if ( not defined $Book ) {
-        throw TWiki::OopsException(
+        throw Foswiki::OopsException(
             'alert',
             def    => 'generic',
             web    => $_[2],
@@ -100,7 +98,7 @@ sub excel2topics {
 
     my %colname;
     foreach my $WorkSheet ( @{ $Book->{Worksheet} } ) {
-        TWiki::Func::writeDebug(
+        Foswiki::Func::writeDebug(
             "--------- SHEET:" . $WorkSheet->{Name} . "\n" )
           if $config{DEBUG};
         for (
@@ -131,7 +129,7 @@ sub excel2topics {
             {
                 my $cell = $WorkSheet->{Cells}[$row][$col];
                 if ($cell) {
-                    TWiki::Func::writeDebug(
+                    Foswiki::Func::writeDebug(
                         "( $row , $col ) =>" . $cell->Value . "\n" )
                       if $config{DEBUG};
                     $data{ $colname{$col} } = $cell->Value;
@@ -150,20 +148,20 @@ sub excel2topics {
             # Writing the topic
             my $sourceTopic;
             my $changed = 0;
-            if ( TWiki::Func::topicExists( $webName, $newtopic ) ) {
+            if ( Foswiki::Func::topicExists( $webName, $newtopic ) ) {
                 $sourceTopic = $newtopic;
             }
             else {
                 $sourceTopic = $config{"NEWTOPICTEMPLATE"};
                 my $msg =
 "$webName/$newtopic: new topic created based on $config{NEWTOPICTEMPLATE}";
-                $config{DEBUG} && TWiki::Func::writeWarning($msg);
+                $config{DEBUG} && Foswiki::Func::writeWarning($msg);
                 $log .= "$msg\n";
                 $changed = 1;
             }
 
             my ( $meta, $text ) =
-              TWiki::Func::readTopic( $webName, $sourceTopic );
+              Foswiki::Func::readTopic( $webName, $sourceTopic );
             if ( not defined $meta or not defined $text ) {
                 die "Can't find $sourceTopic";
             }
@@ -175,7 +173,7 @@ sub excel2topics {
                 {
                     my $msg =
 "      $webName/$newtopic: $key     new value=$config{$key}";
-                    $config{DEBUG} && TWiki::Func::writeWarning($msg);
+                    $config{DEBUG} && Foswiki::Func::writeWarning($msg);
                     $log .= "$msg\n";
                     $changed = 1;
                     my $elem = { "name" => $config{$key} };
@@ -194,7 +192,7 @@ sub excel2topics {
 "      $webName/$newtopic: topic text has changed in column named: ["
                       . $config{TOPICTEXT}
                       . " / $colname]";
-                    $config{DEBUG} && TWiki::Func::writeWarning($msg);
+                    $config{DEBUG} && Foswiki::Func::writeWarning($msg);
                     $log .= "$msg\n";
                     $log .= "vvvvvvvvvvvvvvvvvvv old vvvvvvvvvvvvvvvvvvv \n";
                     $log .= "$text\n";
@@ -235,7 +233,7 @@ sub excel2topics {
                                 "      $webName/$newtopic: $colname: old value="
                               . $$field{"value"}
                               . " new value=$data{$colname}";
-                            $config{DEBUG} && TWiki::Func::writeWarning($msg);
+                            $config{DEBUG} && Foswiki::Func::writeWarning($msg);
                             $log .= "$msg\n";
                             $changed = 1;
 
@@ -271,29 +269,29 @@ sub excel2topics {
 
             if ($changed) {    # only save if something has changed
                 my ( $oopsUrl, $loginName, $unlockTime ) =
-                  TWiki::Func::checkTopicEditLock( $webName, $newtopic );
+                  Foswiki::Func::checkTopicEditLock( $webName, $newtopic );
                 if ( $oopsUrl eq '' or $config{"FORCCEOVERWRITE"} ) {
 
                     # Options chosen were "", 'unlock', 'Notify', "LogSave", ""
-                    $newtopic = TWiki::Sandbox::untaintUnchecked($newtopic);
+                    $newtopic = Foswiki::Sandbox::untaintUnchecked($newtopic);
                     $session->{store}
                       ->saveTopic( $user, $webName, $newtopic, $text, $meta,
                         {} );
-                    TWiki::Func::setTopicEditLock( $webName, $newtopic, 0 );
+                    Foswiki::Func::setTopicEditLock( $webName, $newtopic, 0 );
                     my $msg = "### $webName/$newtopic written ###";
-                    $config{DEBUG} && TWiki::Func::writeWarning($msg);
+                    $config{DEBUG} && Foswiki::Func::writeWarning($msg);
                     $log .= "$msg\n";
                 }
                 else {
                     my $msg =
 "$webName/$newtopic locked and FORCCEOVERWRITE not on -> not overwritten";
-                    $config{DEBUG} && TWiki::Func::writeWarning($msg);
+                    $config{DEBUG} && Foswiki::Func::writeWarning($msg);
                     $log .= "$msg\n";
                 }
             }
             else {
                 my $msg = "$webName/$newtopic not changed -> not written";
-                $config{DEBUG} && TWiki::Func::writeWarning($msg);
+                $config{DEBUG} && Foswiki::Func::writeWarning($msg);
                 $log .= "$msg\n";
             }
         }
@@ -332,7 +330,7 @@ sub cleanField {
 
 ---++ sub excel2table ( $session, $params, $theWeb, $theTopic )
 
-Generate a TWiki ML table from an Excel attachment.
+Generate a TML table from an Excel attachment.
 
 =cut
 
@@ -343,22 +341,22 @@ sub excel2table {
     $config{UPLOADFILE}  = $params->{"_DEFAULT"} || $params->{file} || $topic;
     $config{UPLOADTOPIC} = $params->{topic}      || $topic;
     $config{FORM}        = $params->{template}   || '';
-    $config{DEBUG} = $TWiki::Plugins::ExcelImportExportPlugin::debug;
+    $config{DEBUG} = $Foswiki::Plugins::ExcelImportExportPlugin::debug;
 
     ( $config{UPLOADWEB}, $config{UPLOADTOPIC} ) =
-      $TWiki::Plugins::SESSION->normalizeWebTopicName( $webName,
+      $Foswiki::Plugins::SESSION->normalizeWebTopicName( $webName,
         $config{UPLOADTOPIC} );
 
     my $log = '';
 
-    my $xlsfile = $TWiki::cfg{PubDir}
+    my $xlsfile = $Foswiki::cfg{PubDir}
       . "/$config{UPLOADWEB}/$config{UPLOADTOPIC}/$config{UPLOADFILE}.xls";
     $log .=
 "  attachment file=$config{UPLOADWEB}/$config{UPLOADTOPIC}/$config{UPLOADFILE}\n";
 
     my $Book = Spreadsheet::ParseExcel::Workbook->Parse($xlsfile);
     if ( not defined $Book ) {
-        throw TWiki::OopsException(
+        throw Foswiki::OopsException(
             'alert',
             def    => 'generic',
             web    => $_[2],
@@ -368,7 +366,7 @@ sub excel2table {
 
     }
 
-    my $form      = new TWiki::Form( $session, $webName, $config{FORM} );
+    my $form      = new Foswiki::Form( $session, $webName, $config{FORM} );
     my $fieldDefs = $form->{fields};
     my $table     = '|';
     foreach my $field ( @{$fieldDefs} ) {
@@ -378,7 +376,7 @@ sub excel2table {
 
     my %colname;
     foreach my $WorkSheet ( @{ $Book->{Worksheet} } ) {
-        TWiki::Func::writeDebug(
+        Foswiki::Func::writeDebug(
             "--------- SHEET:" . $WorkSheet->{Name} . "\n" )
           if $config{DEBUG};
         for (
@@ -410,7 +408,7 @@ sub excel2table {
             {
                 my $cell = $WorkSheet->{Cells}[$row][$col];
                 if ($cell) {
-                    TWiki::Func::writeDebug(
+                    Foswiki::Func::writeDebug(
                         "( $row , $col ) =>" . $cell->Value . "\n" )
                       if $config{DEBUG};
                     $data{ $colname{$col} } = $cell->Value;
@@ -428,7 +426,7 @@ sub excel2table {
                     if ( $field->{title} eq $colname ) {
                         my $msg =
                           "      ( $row , $colname ) => $data{$colname}";
-                        TWiki::Func::writeDebug($msg) if $config{DEBUG};
+                        Foswiki::Func::writeDebug($msg) if $config{DEBUG};
                         $log .= "$msg\n";
 
                         # replace CR/LF and "
@@ -455,15 +453,15 @@ sub excel2table {
 
 ---++ sub uploadexcel2table ( $session )
 
-Generate a TWiki ML table from an Excel attachment.
+Generate a TML table from an Excel attachment.
 
 =cut
 
 sub uploadexcel2table {
     my $session = shift;
-    $TWiki::Plugins::SESSION = $session;
+    $Foswiki::Plugins::SESSION = $session;
 
-    my $query     = TWiki::Func::getCgiQuery();
+    my $query     = Foswiki::Func::getCgiQuery();
     my $webName   = $session->{webName};
     my $topicName = $session->{topicName};
     my $userName  = $session->{user};
@@ -471,15 +469,15 @@ sub uploadexcel2table {
     my %config = ();
     $config{UPLOADTOPIC} = $query->param('uploadtopic') || $topicName;
     $config{FORM}        = $query->param('template')    || '';
-    $config{DEBUG} = $TWiki::Plugins::ExcelImportExportPlugin::debug;
+    $config{DEBUG} = $Foswiki::Plugins::ExcelImportExportPlugin::debug;
 
     ( $config{UPLOADWEB}, $config{UPLOADTOPIC} ) =
       $session->normalizeWebTopicName( $webName,
-        TWiki::Sandbox::untaintUnchecked( $config{UPLOADTOPIC} ) );
+        Foswiki::Sandbox::untaintUnchecked( $config{UPLOADTOPIC} ) );
 
     my $log = '';
 
-    # Copied from TWiki::UI::Upload.pm
+    # Copied from Foswiki::UI::Upload.pm
     my $filePath = $query->param('filepath') || '';
     my $fileName = $query->param('filename') || '';
     if ( $filePath && !$fileName ) {
@@ -494,7 +492,7 @@ sub uploadexcel2table {
 
     my $Book = Spreadsheet::ParseExcel::Workbook->Parse($xlsfile);
     if ( not defined $Book ) {
-        throw TWiki::OopsException(
+        throw Foswiki::OopsException(
             'alert',
             def    => 'generic',
             web    => $_[2],
@@ -504,7 +502,7 @@ sub uploadexcel2table {
 
     }
 
-    my $form      = new TWiki::Form( $session, $webName, $config{FORM} );
+    my $form      = new Foswiki::Form( $session, $webName, $config{FORM} );
     my $fieldDefs = $form->{fields};
     my $table     = '|';
     foreach my $field ( @{$fieldDefs} ) {
@@ -514,7 +512,7 @@ sub uploadexcel2table {
 
     my %colname;
     foreach my $WorkSheet ( @{ $Book->{Worksheet} } ) {
-        TWiki::Func::writeDebug(
+        Foswiki::Func::writeDebug(
             "--------- SHEET:" . $WorkSheet->{Name} . "\n" )
           if $config{DEBUG};
         for (
@@ -546,7 +544,7 @@ sub uploadexcel2table {
             {
                 my $cell = $WorkSheet->{Cells}[$row][$col];
                 if ($cell) {
-                    TWiki::Func::writeDebug(
+                    Foswiki::Func::writeDebug(
                         "( $row , $col ) =>" . $cell->Value . "\n" )
                       if $config{DEBUG};
                     $data{ $colname{$col} } = $cell->Value;
@@ -563,7 +561,7 @@ sub uploadexcel2table {
                     if ( $field->{title} eq $colname ) {
                         my $msg =
                           "      ( $row , $colname ) => $data{$colname}";
-                        TWiki::Func::writeDebug($msg) if $config{DEBUG};
+                        Foswiki::Func::writeDebug($msg) if $config{DEBUG};
                         $log .= "$msg\n";
 
                         # replace CR/LF and "
@@ -593,7 +591,7 @@ sub uploadexcel2table {
     foreach (
         split(
             /\r?\n/,
-            &TWiki::Func::readTopicText( $config{UPLOADWEB},
+            Foswiki::Func::readTopicText( $config{UPLOADWEB},
                 $config{UPLOADTOPIC}, "", 1 )
               . "\n<nop>\n"
         )
@@ -620,19 +618,19 @@ sub uploadexcel2table {
 
     doEnableEdit( $config{UPLOADWEB}, $config{UPLOADTOPIC}, 0 );
     my $error =
-      TWiki::Func::saveTopicText( $config{UPLOADWEB}, $config{UPLOADTOPIC},
+      Foswiki::Func::saveTopicText( $config{UPLOADWEB}, $config{UPLOADTOPIC},
         $result, '', 1 );
-    TWiki::Func::setTopicEditLock( $config{UPLOADWEB}, $config{UPLOADTOPIC},
+    Foswiki::Func::setTopicEditLock( $config{UPLOADWEB}, $config{UPLOADTOPIC},
         0 );    # unlock Topic
     my $url =
-      TWiki::Func::getViewUrl( $config{UPLOADWEB}, $config{UPLOADTOPIC} );
+      Foswiki::Func::getViewUrl( $config{UPLOADWEB}, $config{UPLOADTOPIC} );
     if ($error) {
-        $url = TWiki::Func::getOopsUrl( $webName, $topicName, 'oopssaveerr',
+        $url = Foswiki::Func::getOopsUrl( $webName, $topicName, 'oopssaveerr',
             $error );
     }
 
     # and finally display topic, and move to edited line
-    TWiki::Func::redirectCgiQuery( $query, $url );
+    Foswiki::Func::redirectCgiQuery( $query, $url );
 
 }
 
@@ -640,20 +638,20 @@ sub uploadexcel2table {
 sub doEnableEdit {
     my ( $theWeb, $theTopic, $doCheckIfLocked ) = @_;
 
-    TWiki::Func::writeDebug(
+    Foswiki::Func::writeDebug(
         "- ExcelImportExportPlugin::doEnableEdit( $theWeb, $theTopic )")
-      if $TWiki::Plugins::ExcelImportExportPlugin::debug;
+      if $Foswiki::Plugins::ExcelImportExportPlugin::debug;
 
-    my $wikiUserName = TWiki::Func::getWikiUserName();
+    my $wikiUserName = Foswiki::Func::getWikiUserName();
     if (
-        !TWiki::Func::checkAccessPermission(
+        !Foswiki::Func::checkAccessPermission(
             'change', $wikiUserName, '', $theTopic, $theWeb
         )
       )
     {
 
         # user has no permission to change the topic
-        throw TWiki::OopsException(
+        throw Foswiki::OopsException(
             'accessdenied',
             def    => 'topic_access',
             web    => $theWeb,
@@ -663,15 +661,15 @@ sub doEnableEdit {
     }
 
     my ( $oopsUrl, $lockUser ) =
-      TWiki::Func::checkTopicEditLock( $theWeb, $theTopic );
+      Foswiki::Func::checkTopicEditLock( $theWeb, $theTopic );
     if ( ($doCheckIfLocked) && ($lockUser) ) {
 
         # warn user that other person is editing this topic
-        TWiki::Func::redirectCgiQuery( $TWiki::Plugins::SESSION->{cgiQuery},
+        Foswiki::Func::redirectCgiQuery( $Foswiki::Plugins::SESSION->{cgiQuery},
             $oopsUrl );
         return 0;
     }
-    TWiki::Func::setTopicEditLock( $theWeb, $theTopic, 1 );
+    Foswiki::Func::setTopicEditLock( $theWeb, $theTopic, 1 );
 
     return 1;
 }

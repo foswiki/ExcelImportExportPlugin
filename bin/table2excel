@@ -3,7 +3,7 @@
 # Foswiki - The Free and Open Source Wiki, http://foswiki.org/
 #
 # Copyright (C) 1999-2006 Peter Thoeny, peter@thoeny.org
-# and TWiki Contributors.
+# and Foswiki Contributors.
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -27,6 +27,6 @@ BEGIN {
     require 'setlib.cfg';
 }
 
-use TWiki::UI;
-use TWiki::Plugins::ExcelImportExportPlugin::Export;
-TWiki::UI::run( \&TWiki::Plugins::ExcelImportExportPlugin::Export::table2excel );
+use Foswiki::UI;
+use Foswiki::Plugins::ExcelImportExportPlugin::Export;
+Foswiki::UI::run( \&Foswiki::Plugins::ExcelImportExportPlugin::Export::table2excel );

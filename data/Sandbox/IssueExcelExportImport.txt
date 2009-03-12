@@ -1,4 +1,4 @@
-%META:TOPICINFO{author="micha" date="1224086737" format="1.1" version="1.2"}%
+%META:TOPICINFO{author="micha" date="1236878882" format="1.1" version="1.2"}%
 %META:TOPICPARENT{name="IssueTracking"}%
 ---+!! Excel Export and Import
 %TOC%
@@ -81,4 +81,4 @@ Format of the exported Excel:
 
 
 
-%META:FILEATTACHMENT{name="IssueExcelExportImport.xls" attachment="IssueExcelExportImport.xls" attr="" comment="" date="1224086736" path="IssueExcelExportImport.xls" size="117248" stream="IO::File=GLOB(0x8e8897c)" tmpFilename="/var/tmp/CGItemp28917" user="micha" version="2"}%
+%META:FILEATTACHMENT{name="IssueExcelExportImport.xls" attachment="IssueExcelExportImport.xls" attr="" comment="" date="1236878881" path="IssueExcelExportImport.xls" size="117248" stream="IO::File=GLOB(0x8edf554)" tmpFilename="/var/tmp/CGItemp45425" user="micha" version="1"}%

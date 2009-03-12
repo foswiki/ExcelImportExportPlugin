@@ -1,7 +1,7 @@
 # Plugin for Foswiki - The Free and Open Source Wiki, http://foswiki.org/
 #
 # (c) 2006 Motorola, thomas.weigert@motorola.com
-# (c) 2006 TWiki:Main.ClausLanghans
+# (c) 2006 Foswiki:Main.ClausLanghans
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
 # as published by the Free Software Foundation; either version 2
@@ -12,7 +12,7 @@
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 #
-# For licensing info read LICENSE file in the TWiki root.
+# For licensing info read LICENSE file in the Foswiki root.
 
 # TODO:
 # 1. Move setup of %config into initPlugin
@@ -22,16 +22,16 @@
 ---+ package ExcelImportExportPlugin
 
 This plugin supports the export and import of tables and topics between
-TWiki and Excel.
+Foswiki and Excel.
 
 It is based on the ExcelImportExportAddOn by Claus Langhans.
 
 =cut
 
-package TWiki::Plugins::ExcelImportExportPlugin;
+package Foswiki::Plugins::ExcelImportExportPlugin;
 
 use strict;
-use TWiki::Func;
+use Foswiki::Func;
 
 use vars qw( $VERSION $RELEASE $debug $pluginName );
 
@@ -55,17 +55,15 @@ sub initPlugin {
     my ( $topic, $web, $user, $installWeb ) = @_;
 
     # check for Plugins.pm versions
-    if ( $TWiki::Plugins::VERSION < 1.1 ) {
-        TWiki::Func::writeWarning(
-            "This plugin works only for TWiki4 and later.");
+    if ( $Foswiki::Plugins::VERSION < 1.1 ) {
         return 0;
     }
 
-    TWiki::Func::registerTagHandler( 'EXCEL2TABLE', \&excel2table,
+    Foswiki::Func::registerTagHandler( 'EXCEL2TABLE', \&excel2table,
         'context-free' );
-    TWiki::Func::registerTagHandler( 'TABLE2EXCEL', \&table2excel,
+    Foswiki::Func::registerTagHandler( 'TABLE2EXCEL', \&table2excel,
         'context-free' );
-    TWiki::Func::registerTagHandler( 'UPLOADEXCEL2TABLE', \&uploadexcel2table,
+    Foswiki::Func::registerTagHandler( 'UPLOADEXCEL2TABLE', \&uploadexcel2table,
         'context-free' );
 
     # Plugin correctly initialized
@@ -74,9 +72,8 @@ sub initPlugin {
 }
 
 sub excel2table {
-    eval 'use TWiki::Plugins::ExcelImportExportPlugin::Import';
-    die $@ if $@;
-    return TWiki::Plugins::ExcelImportExportPlugin::Import::excel2table(@_);
+    require Foswiki::Plugins::ExcelImportExportPlugin::Import;
+    return Foswiki::Plugins::ExcelImportExportPlugin::Import::excel2table(@_);
 }
 
 sub uploadexcel2table {
@@ -89,7 +86,7 @@ sub uploadexcel2table {
     my $uploadtopic = $params->{"_DEFAULT"} || $params->{topic} || $topic;
 
     return
-"<form name=\"main\" enctype=\"multipart/form-data\" action=\"%SCRIPTURLPATH{\"uploadexcel\"}%/%WEB%/%TOPIC%\" method=\"post\"><input class=\"twikiInputField\" type=\"file\" name=\"filepath\" value=\"%FILEPATH%\" size=\"30\" /><input type=\"hidden\" value=\"$template\" name=\"template\" /><input type=\"hidden\" value=\"$uploadtopic\" name=\"uploadtopic\" /><input type=\"hidden\" name=\"filename\" value=\"%FILENAME%\" /> &nbsp; <input type=\"submit\" value=\"Upload excel\" /></form>";
+"<form name=\"main\" enctype=\"multipart/form-data\" action=\"%SCRIPTURLPATH{\"uploadexcel\"}%/%WEB%/%TOPIC%\" method=\"post\"><input class=\"foswikiInputField\" type=\"file\" name=\"filepath\" value=\"%FILEPATH%\" size=\"30\" /><input type=\"hidden\" value=\"$template\" name=\"template\" /><input type=\"hidden\" value=\"$uploadtopic\" name=\"uploadtopic\" /><input type=\"hidden\" name=\"filename\" value=\"%FILENAME%\" /> &nbsp; <input type=\"submit\" value=\"Upload excel\" /></form>";
 
 }
 

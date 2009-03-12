@@ -1,0 +1,11 @@
+%META:TOPICINFO{author="micha" date="1236879521" format="1.1" reprev="1.1" version="1.1"}%
+%META:TOPICPARENT{name="IssueExcelExportImport"}%
+---+!! %TOPIC%
+
+%SEARCH{
+  "form.name='IssueTrackingForm'"
+   type="query"
+  header="| *Topic* | *Status* | *Logged by* | *Action owner* | *Users affected* | *Severity* |"
+  format="| [[$web.$topic][$topic]] | $formfield(STATUS) | <nop>$formfield(LOGGED_BY) | $formfield(ACTION_OWNER) | $formfield(USERS_AFFECTED) | $formfield(SEVERITY) |"
+  nonoise="on"
+}%
