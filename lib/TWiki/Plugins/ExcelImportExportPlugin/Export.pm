@@ -30,7 +30,7 @@ sub topics2excel {
     my $session = shift;
     $TWiki::Plugins::SESSION = $session;
 
-    my $query = $session->{cgiQuery};
+    my $query     = TWiki::Func::getCgiQuery();
 ## SMELL: The spreadsheet _must_ be attached to the same topic where the map is
     my $web       = $session->{webName};
     my $basetopic = $session->{topicName};
@@ -85,11 +85,13 @@ sub topics2excel {
             &TWiki::Func::getScriptUrl( $web, $basetopic, "view" ) );
     }
 
-    my $xlsfile = "-";
+    my $xlsBlob;
+    open my $fh, '>', \$xlsBlob or die "Failed to open filehandle: $!";
+    binmode($fh);
 
     # Create a new Excel workbook
-    my $workbook = Spreadsheet::WriteExcel->new($xlsfile)
-      or die "Problems creating new Excel $xlsfile file: $!";
+    my $workbook = Spreadsheet::WriteExcel->new($fh)
+      or die "Problems creating new Excel file: $!";
 
     # Add a worksheet
     my $worksheet   = $workbook->add_worksheet();
@@ -371,9 +373,6 @@ sub topics2excel {
         }
     }
 
-    print $query->header( -type => 'application/vnd.ms-excel',
-        -expire => 'now' );
-
  #print "Content-type: application/vnd.ms-excel\n";
  # The Content-Disposition will generate a prompt to save  the file. If you want
  # to stream the file to the browser, comment out the following line.
@@ -383,6 +382,7 @@ sub topics2excel {
     # The contents of the Excel file is returned to STDOUT
     $workbook->close() or die "Error closing file: $!";
 
+    $session->writeCompletePage($xlsBlob, '', 'application/vnd.ms-excel');
 }
 
 sub table2excel {
@@ -390,7 +390,7 @@ sub table2excel {
     my $session = shift;
     $TWiki::Plugins::SESSION = $session;
 
-    my $query     = $session->{cgiQuery};
+    my $query     = TWiki::Func::getCgiQuery();
     my $web       = $session->{webName};
     my $basetopic = $session->{topicName};
     my $userName  = $session->{user};

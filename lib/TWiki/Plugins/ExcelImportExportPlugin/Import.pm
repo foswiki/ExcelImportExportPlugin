@@ -20,7 +20,6 @@ use strict;
 use Spreadsheet::ParseExcel;
 use TWiki;
 use TWiki::Func;
-use TWiki::Render;
 use TWiki::Meta;
 use TWiki::Form;
 
@@ -29,7 +28,7 @@ sub excel2topics {
     my $session = shift;
     $TWiki::Plugins::SESSION = $session;
 
-    my $query   = $session->{cgiQuery};
+    my $query     = TWiki::Func::getCgiQuery();
     my $webName = $session->{webName};
     my $topic   = $session->{topicName};
     my $user    = $session->{user};
@@ -302,9 +301,9 @@ sub excel2topics {
     }
 
     ## TW: Should use oops dialog
-    print $query->header( -type => 'text/plain', -expire => 'now' );
-    print $log;
-
+    $query->header( -type => 'text/plain', -expire => 'now' );
+    
+    $session->writeCompletePage($log, '', 'text/plain');
 }
 
 =pod
@@ -463,7 +462,8 @@ Generate a TWiki ML table from an Excel attachment.
 sub uploadexcel2table {
     my $session = shift;
     $TWiki::Plugins::SESSION = $session;
-    my $query     = $session->{cgiQuery};
+
+    my $query     = TWiki::Func::getCgiQuery();
     my $webName   = $session->{webName};
     my $topicName = $session->{topicName};
     my $userName  = $session->{user};

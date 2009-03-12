@@ -31,10 +31,7 @@ It is based on the ExcelImportExportAddOn by Claus Langhans.
 package TWiki::Plugins::ExcelImportExportPlugin;
 
 use strict;
-use TWiki;
 use TWiki::Func;
-use TWiki::Render;
-use TWiki::Meta;
 
 use vars qw( $VERSION $RELEASE $debug $pluginName );
 
