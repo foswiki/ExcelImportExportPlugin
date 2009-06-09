@@ -19,6 +19,9 @@ This plugin establishes a correspondence between a spreadsheet and a Foswiki tab
 
 The columns of the spreadsheet and the columns of the Foswiki table are correlated via a Foswiki form and/or a more detailed mapping table, see [[#ColumnMapping]].
 
+%N% 
+You can now *skip the creating of a foswiki form*. Now the plug-In is able to render every content of an excel file as a Foswiki table without defining a correlated Foswiki form first. Additionally excel content which is seperated by an empty row will be treaded as independent tables and cause the generation of several Foswiki tables.
+
 
 ---++ Syntax Rules
 
@@ -124,6 +127,7 @@ Look at the example in Sandbox...
 |  License: | GPL ([[http://www.gnu.org/copyleft/gpl.html][GNU General Public License]]) |
 |  Plugin Version: | %$VERSION% |
 |  Change History: | <!-- versions below in reverse order -->&nbsp; |
+|  04 Jun 2009: | Adding Ability to generate tables without a foswiki form - Foswiki:Main.SvenHess |
 |  12 Mar 2009: | converted to foswiki - Foswiki:Main.MichaelDaum |
 |  01 Jul 2008: | 4.2.x compatibility, Update Topic data from changed Form definition. - SvenDowideit@wikiring.com |
 |  04 Nov 2006: | Added abilty to upload spreadsheet. Rewritten for consistency and made more resilient. Enhanced documentation. |
