@@ -29,7 +29,7 @@ sub topics2excel {
     my $session = shift;
     $Foswiki::Plugins::SESSION = $session;
 
-    my $query = Foswiki::Func::getCgiQuery();
+    my $query     = Foswiki::Func::getCgiQuery();
 ## SMELL: The spreadsheet _must_ be attached to the same topic where the map is
     my $web       = $session->{webName};
     my $basetopic = $session->{topicName};
@@ -170,13 +170,12 @@ sub topics2excel {
         }
 
     }
-    push( @sortorder, $config{TOPICTEXT} )   if $config{TOPICTEXT};
+    push( @sortorder, $config{TOPICTEXT} ) if $config{TOPICTEXT};
     push( @sortorder, $config{TOPICCOLUMN} ) if $config{TOPICCOLUMN};
 
     # Read in the mapping data to configure the upload fields (if present)
     if ( $config{MAPPING} ) {
-        my ( $meta, $text ) =
-          Foswiki::Func::readTopic( $web, $config{MAPPING} );
+        my ( $meta, $text ) = Foswiki::Func::readTopic( $web, $config{MAPPING} );
 
         # used code from Foswiki::Forms
         $text =~
@@ -261,9 +260,8 @@ sub topics2excel {
     my $col = 0;
     my $row = 0;
     foreach my $name (@sortorder) {
-        if ( defined( $orientation{$name} ) && $orientation{$name} eq 'v' ) {
-            $worksheet->write( $row, $col, ( $shortname{$name} || $name ),
-                $headerformat90 );
+        if ( defined($orientation{$name}) && $orientation{$name} eq 'v' ) {
+            $worksheet->write( $row, $col, ($shortname{$name}||$name), $headerformat90 );
             $worksheet->write_comment( $row, $col, $name, height => 10 );
             if ( defined( $width{$name} ) ) {
                 $worksheet->set_column( $col, $col, $width{$name} );
@@ -273,8 +271,7 @@ sub topics2excel {
             }
         }
         else {
-            $worksheet->write( $row, $col, ( $shortname{$name} || $name ),
-                $headerformat );
+            $worksheet->write( $row, $col, ($shortname{$name}||$name), $headerformat );
             $worksheet->write_comment( $row, $col, $name, height => 10 );
             if ( defined( $width{$name} ) ) {
                 $worksheet->set_column( $col, $col, $width{$name} );
@@ -306,8 +303,7 @@ sub topics2excel {
           )
         {
             my ( $meta, $text ) = Foswiki::Func::readTopic( $web, $topic );
-            if ( defined( $meta->{FORM}[0]{name} )
-                && $meta->{FORM}[0]{name} eq $config{FORM}
+            if ( defined($meta->{FORM}[0]{name}) && $meta->{FORM}[0]{name} eq $config{FORM}
                 and not $topic =~ /$config{TEMPLATETOPIC}$/ )
             {    # Exclude the template topcic
                 my %value;
@@ -357,9 +353,8 @@ sub topics2excel {
                             $format{$name} );
                     }
                     elsif ( $type{$name} eq 'text' ) {
-                        if ( !defined( $value{$name} ) ) {
-
-                  #print STDERR "value of $name undefined - defaulting to ''\n";
+                        if (!defined($value{$name})) {
+                            #print STDERR "value of $name undefined - defaulting to ''\n";
                             $value{$name} = '';
                         }
                         $worksheet->write_string( $row, $col, $value{$name},
@@ -377,18 +372,18 @@ sub topics2excel {
         }
     }
 
-    $query->header( -expire => 'now' );
+    $query->header(-expire => 'now');
 
- #print "Content-type: application/vnd.ms-excel\n";
- # The Content-Disposition will generate a prompt to save  the file. If you want
- # to stream the file to the browser, comment out the following line.
- #print "Content-Disposition: attachment; filename=$xlsfile\n";
- #print "\n";
+   #print "Content-type: application/vnd.ms-excel\n";
+   # The Content-Disposition will generate a prompt to save  the file. If you want
+   # to stream the file to the browser, comment out the following line.
+   #print "Content-Disposition: attachment; filename=$xlsfile\n";
+   #print "\n";
 
     # The contents of the Excel file is returned to STDOUT
     $workbook->close() or die "Error closing file: $!";
 
-    $session->writeCompletePage( $xlsBlob, '', 'application/vnd.ms-excel' );
+    $session->writeCompletePage($xlsBlob, '', 'application/vnd.ms-excel');
 }
 
 sub table2excel {
@@ -560,8 +555,7 @@ sub table2excel {
 
     # Read in the mapping data to configure the upload fields (if present)
     if ( $config{MAPPING} ) {
-        my ( $meta, $text ) =
-          Foswiki::Func::readTopic( $web, $config{MAPPING} );
+        my ( $meta, $text ) = Foswiki::Func::readTopic( $web, $config{MAPPING} );
 
         # used code from Foswiki::Forms
         $text =~
@@ -766,9 +760,8 @@ s/%SEARCH{(.*)}%/$session->_SEARCH( new Foswiki::Attrs($1), $basetopic, $web )/g
                         $format{$name} );
                 }
                 elsif ( $type{$name} eq 'text' ) {
-                    if ( !defined( $value{$name} ) ) {
-
-                  #print STDERR "value of $name undefined - defaulting to ''\n";
+                    if (!defined($value{$name})) {
+                        #print STDERR "value of $name undefined - defaulting to ''\n";
                         $value{$name} = '';
                     }
                     $worksheet->write_string( $row, $col, $value{$name},
@@ -797,10 +790,10 @@ s/%SEARCH{(.*)}%/$session->_SEARCH( new Foswiki::Attrs($1), $basetopic, $web )/g
 
     $query->header( -expire => 'now' );
 
- # The Content-Disposition will generate a prompt to save  the file. If you want
- # to stream the file to the browser, comment out the following line.
- #print "Content-Disposition: attachment; filename=$xlsfile\n";
- #print "\n";
+   # The Content-Disposition will generate a prompt to save  the file. If you want
+   # to stream the file to the browser, comment out the following line.
+   #print "Content-Disposition: attachment; filename=$xlsfile\n";
+   #print "\n";
 
     # The contents of the Excel file
     $workbook->close() or die "Error closing file: $!";
@@ -809,7 +802,7 @@ s/%SEARCH{(.*)}%/$session->_SEARCH( new Foswiki::Attrs($1), $basetopic, $web )/g
 #  my $url = Foswiki::Func::getScriptUrl( $web, $basetopic, "viewfile" ) . "?rev=;filename=$config{UPLOADFILE}.xls";
 #  Foswiki::Func::redirectCgiQuery( $query, $url );
 
-    $session->writeCompletePage( $xlsBlob, '', 'application/vnd.ms-excel' );
+    $session->writeCompletePage($xlsBlob, '', 'application/vnd.ms-excel');
 }
 
 1;

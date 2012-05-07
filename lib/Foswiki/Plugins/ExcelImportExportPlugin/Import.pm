@@ -2,7 +2,7 @@
 #
 # (c) 2006 Motorola, thomas.weigert@motorola.com
 # (c) 2006 Foswiki:Main.ClausLanghans
-# Adding Ability to generate tables without defining a foswiki
+# Adding Ability to generate tables without defining a foswiki 
 # form first - by Sven Hess, shess@seibert-media.net
 #
 # This program is free software; you can redistribute it and/or
@@ -29,7 +29,7 @@ sub excel2topics {
     my $session = shift;
     $Foswiki::Plugins::SESSION = $session;
 
-    my $query   = Foswiki::Func::getCgiQuery();
+    my $query     = Foswiki::Func::getCgiQuery();
     my $webName = $session->{webName};
     my $topic   = $session->{topicName};
     my $user    = $session->{user};
@@ -83,8 +83,7 @@ sub excel2topics {
         $log .= "  $key=" . ( $config{$key} || 'undef' ) . "\n";
     }
 
-    my $xlsfile =
-      $Foswiki::cfg{PubDir} . "/$webName/$topic/$config{UPLOADFILE}";
+    my $xlsfile = $Foswiki::cfg{PubDir} . "/$webName/$topic/$config{UPLOADFILE}";
     $xlsfile = Foswiki::Sandbox::untaintUnchecked($xlsfile);
     $log .= "  attachment file=$webName/$topic/$config{UPLOADFILE}\n";
 
@@ -304,8 +303,8 @@ sub excel2topics {
 
     ## TW: Should use oops dialog
     $query->header( -type => 'text/plain', -expire => 'now' );
-
-    $session->writeCompletePage( $log, '', 'text/plain' );
+    
+    $session->writeCompletePage($log, '', 'text/plain');
 }
 
 =pod
@@ -340,13 +339,13 @@ Generate a TML table from an Excel attachment.
 
 sub excel2table {
     my ( $session, $params, $topic, $webName ) = @_;
-
+    
     my $log = '';
     my $form;
     my $fieldDefs;
     my $form_defined;
     my $table;
-
+     
     my %config = ();
     $config{UPLOADFILE}  = $params->{"_DEFAULT"} || $params->{file} || $topic;
     $config{UPLOADTOPIC} = $params->{topic}      || $topic;
@@ -357,14 +356,15 @@ sub excel2table {
       $Foswiki::Plugins::SESSION->normalizeWebTopicName( $webName,
         $config{UPLOADTOPIC} );
 
+    
+    
     my $xlsfile = $Foswiki::cfg{PubDir}
       . "/$config{UPLOADWEB}/$config{UPLOADTOPIC}/$config{UPLOADFILE}.xls";
     $log .=
 "  attachment file=$config{UPLOADWEB}/$config{UPLOADTOPIC}/$config{UPLOADFILE}\n";
 
-    my $attachedfile =
-      "$config{UPLOADWEB}/$config{UPLOADTOPIC}/$config{UPLOADFILE}.xls";
-
+    my $attachedfile = "$config{UPLOADWEB}/$config{UPLOADTOPIC}/$config{UPLOADFILE}.xls";
+    
     my $Book = Spreadsheet::ParseExcel::Workbook->Parse($xlsfile);
     if ( not defined $Book ) {
         throw Foswiki::OopsException(
@@ -375,206 +375,201 @@ sub excel2table {
             params => [ 'Cannot read file ', $xlsfile, '', '' ]
         );
     }
-
+      
     # check if template param is set
-    if ( $config{FORM} eq "" ) {
-        $form_defined = 0;
+    if($config{FORM} eq "") {
+      $form_defined = 0;
     }
     else {
-
-        $form = new Foswiki::Form( $session, $webName, $config{FORM} );
-        $fieldDefs = $form->{fields};
-
-        # check if form data is defined
-        if ( @{$fieldDefs} == 0 ) {
-
-            $form_defined = 0;
-            $log .= "No form data defined\n";
+      
+      $form      = new Foswiki::Form( $session, $webName, $config{FORM} );
+      $fieldDefs = $form->{fields};
+      
+      # check if form data is defined    
+      if(@{$fieldDefs} == 0) {
+        
+        $form_defined = 0;
+        $log .= "No form data defined\n";
+      }
+      else {
+        
+        $form_defined = 1;
+        
+        $table     = '|';  
+        foreach my $field ( @{$fieldDefs} ) {
+            $table .= '*' . $field->{title} . '*|';
+            
         }
-        else {
-
-            $form_defined = 1;
-
-            $table = '|';
-            foreach my $field ( @{$fieldDefs} ) {
-                $table .= '*' . $field->{title} . '*|';
-
-            }
-            $table .= "\n";
-        }
+        $table .= "\n";
+      }
     }
-
-    my %colname;
+       
+    my %colname;     
     my $maxcols = 0;
-
+    
     foreach my $WorkSheet ( @{ $Book->{Worksheet} } ) {
         Foswiki::Func::writeDebug(
             "--------- SHEET:" . $WorkSheet->{Name} . "\n" )
           if $config{DEBUG};
-
-        if ($form_defined) {
+        
+        if($form_defined) {
+            for (
+              my $col = $WorkSheet->{MinCol} ;
+              defined $WorkSheet->{MaxCol} && $col <= $WorkSheet->{MaxCol} ;
+              $col++
+            )
+          {
+              my $cell = $WorkSheet->{Cells}[0][$col];
+              if ( defined $cell and $cell->Value ne '' ) {
+                  $colname{$col} = $cell->Value if ($cell);
+                  $log .= "  Column $col = $colname{$col}\n";
+              }
+          }
+  
+          for (
+              my $row = $WorkSheet->{MinRow} + 1 ;
+              defined $WorkSheet->{MaxRow} && $row <= $WorkSheet->{MaxRow} ;
+              $row++
+            )
+          {
+              my %data;    # contains the row
+              my $line = '|';
+              for (
+                  my $col = $WorkSheet->{MinCol} ;
+                  defined $WorkSheet->{MaxCol} && $col <= $WorkSheet->{MaxCol} ;
+                  $col++
+                )
+              {
+                  my $cell = $WorkSheet->{Cells}[$row][$col];
+                  if ($cell) {
+                      Foswiki::Func::writeDebug(
+                          "( $row , $col ) =>" . $cell->Value . "\n" )
+                        if $config{DEBUG};
+                      $data{ $colname{$col} } = $cell->Value;
+                  }
+              }
+  
+              # Generating the table
+  
+              foreach my $field ( @{$fieldDefs} ) {
+                  my $foundIt = 0;
+  
+             # search through all columns and find that with the name of the field
+                  foreach my $colname ( values %colname ) {
+  
+                      if ( $field->{title} eq $colname ) {
+                          my $msg =
+                            "      ( $row , $colname ) => $data{$colname}";
+                          Foswiki::Func::writeDebug($msg) if $config{DEBUG};
+                          $log .= "$msg\n";
+  
+                          # replace CR/LF and "
+                          $data{$colname} =~ s/(\r*\n|\r)/<br \/>/gos;
+                          $data{$colname} =~ s/\|/\&\#124;/gos;
+                          $line .= ' ' . $data{$colname} . ' |';
+                          $foundIt = 1;
+                          last;    # found the field
+                      }
+                  }
+                  $line .= ' |' unless $foundIt;
+              }
+  
+              $line  .= "\n";
+              $table .= $line;
+          }
+        } 
+        # no form data has been defined:
+        # all tables in spreadsheet to wiki tables
+        # more than 1 empty rows initialize new table
+        else {
+        
+        $maxcols = $WorkSheet->{MaxCol};
+        my $theader = 1;
+        my $emptyRow = 0;
+        
+        # loop through all rows
+        for (
+            my $row = $WorkSheet->{MinRow};
+            defined $WorkSheet->{MaxRow} && $row <= $WorkSheet->{MaxRow} ;
+            $row++
+          )
+        {
+            my $line = "";
+            my $emptyCol = 0;
+            
+            # loop through all colums
             for (
                 my $col = $WorkSheet->{MinCol} ;
                 defined $WorkSheet->{MaxCol} && $col <= $WorkSheet->{MaxCol} ;
                 $col++
               )
             {
-                my $cell = $WorkSheet->{Cells}[0][$col];
-                if ( defined $cell and $cell->Value ne '' ) {
-                    $colname{$col} = $cell->Value if ($cell);
-                    $log .= "  Column $col = $colname{$col}\n";
+                my $cell = $WorkSheet->{Cells}[$row][$col];
+                if(not defined $cell) {
+                  $line .= "| ";
+                  $emptyCol++;
+                  next;
                 }
-            }
-
-            for (
-                my $row = $WorkSheet->{MinRow} + 1 ;
-                defined $WorkSheet->{MaxRow} && $row <= $WorkSheet->{MaxRow} ;
-                $row++
-              )
-            {
-                my %data;    # contains the row
-                my $line = '|';
-                for (
-                    my $col = $WorkSheet->{MinCol} ;
-                    defined $WorkSheet->{MaxCol}
-                    && $col <= $WorkSheet->{MaxCol} ;
-                    $col++
-                  )
-                {
-                    my $cell = $WorkSheet->{Cells}[$row][$col];
-                    if ($cell) {
-                        Foswiki::Func::writeDebug(
-                            "( $row , $col ) =>" . $cell->Value . "\n" )
-                          if $config{DEBUG};
-                        $data{ $colname{$col} } = $cell->Value;
-                    }
+                
+                $emptyCol = 0;
+                my $value = $cell->Value;   
+                
+                # replace CR/LF and "
+                $value =~ s/(\r*\n|\r)/<br \/>/gos;
+                $value =~ s/\|/\&\#124;/gos;
+                
+                # not a nice way to substitute euro symbol
+                $value =~ s/\[\$.1\]/&euro;/gos;
+                
+                if ($config{DEBUG}) {           
+                  Foswiki::Func::writeDebug("( $row , $col ) =>" . $value . "\n" );                    
                 }
-
+                
                 # Generating the table
-
-                foreach my $field ( @{$fieldDefs} ) {
-                    my $foundIt = 0;
-
-           # search through all columns and find that with the name of the field
-                    foreach my $colname ( values %colname ) {
-
-                        if ( $field->{title} eq $colname ) {
-                            my $msg =
-                              "      ( $row , $colname ) => $data{$colname}";
-                            Foswiki::Func::writeDebug($msg) if $config{DEBUG};
-                            $log .= "$msg\n";
-
-                            # replace CR/LF and "
-                            $data{$colname} =~ s/(\r*\n|\r)/<br \/>/gos;
-                            $data{$colname} =~ s/\|/\&\#124;/gos;
-                            $line .= ' ' . $data{$colname} . ' |';
-                            $foundIt = 1;
-                            last;    # found the field
-                        }
-                    }
-                    $line .= ' |' unless $foundIt;
-                }
-
-                $line  .= "\n";
-                $table .= $line;
-            }
-        }
-
-        # no form data has been defined:
-        # all tables in spreadsheet to wiki tables
-        # more than 1 empty rows initialize new table
-        else {
-
-            $maxcols = $WorkSheet->{MaxCol};
-            my $theader  = 1;
-            my $emptyRow = 0;
-
-            # loop through all rows
-            for (
-                my $row = $WorkSheet->{MinRow} ;
-                defined $WorkSheet->{MaxRow} && $row <= $WorkSheet->{MaxRow} ;
-                $row++
-              )
-            {
-                my $line     = "";
-                my $emptyCol = 0;
-
-                # loop through all colums
-                for (
-                    my $col = $WorkSheet->{MinCol} ;
-                    defined $WorkSheet->{MaxCol}
-                    && $col <= $WorkSheet->{MaxCol} ;
-                    $col++
-                  )
-                {
-                    my $cell = $WorkSheet->{Cells}[$row][$col];
-                    if ( not defined $cell ) {
-                        $line .= "| ";
-                        $emptyCol++;
-                        next;
-                    }
-
-                    $emptyCol = 0;
-                    my $value = $cell->Value;
-
-                    # replace CR/LF and "
-                    $value =~ s/(\r*\n|\r)/<br \/>/gos;
-                    $value =~ s/\|/\&\#124;/gos;
-
-                    # not a nice way to substitute euro symbol
-                    $value =~ s/\[\$.1\]/&euro;/gos;
-
-                    if ( $config{DEBUG} ) {
-                        Foswiki::Func::writeDebug(
-                            "( $row , $col ) =>" . $value . "\n" );
-                    }
-
-                    # Generating the table
-                    if ($theader) {
-                        $line .= "| *" . $value . "* ";
-                    }
-                    else {
-                        $line .= "| " . $value . " ";
-                    }
-                }
-
-                if ( $emptyCol >= $maxcols ) {
-                    $emptyRow++;
+                if($theader) {
+                  $line .= "| *".$value."* ";
                 }
                 else {
-                    $emptyRow = 0;
-                }
-
-                $log .= $emptyCol;
-
-                # more than 2 empty rows initialize new table
-                if ( $emptyRow < 1 ) {
-                    $line .= "|\n";
-                    $theader = 0;
-                }
-                else {
-                    $line = "\n" if ( $emptyRow == 1 );
-                    $line = ""   if ( $emptyRow > 1 );
-                    $theader = 1;
-                }
-
-                $table .= $line;
+                  $line .= "| ".$value." ";
+                }        
             }
-        }
-
-        # add filename
-        $table .= "data: $config{UPLOADFILE}.xls\n";
-
-        last;    # only the first sheet
+            
+            if($emptyCol >= $maxcols) {
+              $emptyRow++;
+            }
+            else {
+              $emptyRow = 0;
+            }
+            
+            $log .= $emptyCol;
+            
+            # more than 2 empty rows initialize new table
+            if($emptyRow < 1) {
+              $line  .= "|\n";
+              $theader = 0;
+            }
+            else {
+              $line = "\n"  if($emptyRow == 1);
+              $line = ""    if($emptyRow > 1);
+              $theader = 1;
+            }
+            
+            $table .= $line;
+        }        
+      }
+      
+      # add filename
+      $table .= "data: $config{UPLOADFILE}.xls\n";
+      
+      last; # only the first sheet
     }
-
+    
     # error printing
-    if ( $table eq "" ) {
-        my $error =
-          '<font color="red">error: ' . $attachedfile . ' not found.</font>';
-        return $error;
+    if($table eq "") {
+      my $error = '<font color="red">error: '.$attachedfile.' not found.</font>';
+      return $error;
     }
-
+  
     return $table;
 }
 

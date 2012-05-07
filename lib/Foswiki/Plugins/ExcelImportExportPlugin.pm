@@ -2,7 +2,7 @@
 #
 # (c) 2006 Motorola, thomas.weigert@motorola.com
 # (c) 2006 Foswiki:Main.ClausLanghans
-# Adding Ability to generate tables without defining a foswiki
+# Adding Ability to generate tables without defining a foswiki 
 # form first - by Sven Hess, shess@seibert-media.net
 #
 # This program is free software; you can redistribute it and/or
