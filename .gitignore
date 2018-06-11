@@ -1,0 +1,10 @@
+*.swp
+*,v
+*.gz
+/ExcelImportExportPlugin.md5
+/ExcelImportExportPlugin.sha1
+/ExcelImportExportPlugin.tgz
+/ExcelImportExportPlugin.txt
+/ExcelImportExportPlugin.zip
+/ExcelImportExportPlugin_installer
+/ExcelImportExportPlugin_installer.pl

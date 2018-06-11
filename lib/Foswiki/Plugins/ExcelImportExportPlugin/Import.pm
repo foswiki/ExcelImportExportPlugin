@@ -51,8 +51,8 @@ sub excel2topics {
         my $value = Foswiki::Func::getPreferencesValue($key) || '';
         if ( defined $value and $value !~ /^\s*$/ ) {
             $config{$key} = $value;
-            $config{$key} =~ s/^\s*//go;
-            $config{$key} =~ s/\s*$//go;
+            $config{$key} =~ s/^\s*//g;
+            $config{$key} =~ s/\s*$//g;
         }
     }
 
@@ -323,7 +323,7 @@ sub cleanField {
     #$data{$colname} =~ s/(\r*\n|\r)/%_N_%/g;
     #$data{$colname} =~ s/\"/%_Q_%/g;
 
-    $val =~ s/<\/?(nop|noautolink)\/?>//go;
+    $val =~ s/<\/?(nop|noautolink)\/?>//g;
     $val =~ s/\s//g;
 
     return $val;
@@ -356,14 +356,14 @@ sub excel2table {
       $Foswiki::Plugins::SESSION->normalizeWebTopicName( $webName,
         $config{UPLOADTOPIC} );
 
-    
+   $config{UPLOADFILE} .= ".xls" unless $config{UPLOADFILE} =~ /\.xlsx?$/;
     
     my $xlsfile = $Foswiki::cfg{PubDir}
-      . "/$config{UPLOADWEB}/$config{UPLOADTOPIC}/$config{UPLOADFILE}.xls";
+      . "/$config{UPLOADWEB}/$config{UPLOADTOPIC}/$config{UPLOADFILE}";
     $log .=
 "  attachment file=$config{UPLOADWEB}/$config{UPLOADTOPIC}/$config{UPLOADFILE}\n";
 
-    my $attachedfile = "$config{UPLOADWEB}/$config{UPLOADTOPIC}/$config{UPLOADFILE}.xls";
+    my $attachedfile = "$config{UPLOADWEB}/$config{UPLOADTOPIC}/$config{UPLOADFILE}";
     
     my $Book = Spreadsheet::ParseExcel::Workbook->Parse($xlsfile);
     if ( not defined $Book ) {
@@ -464,8 +464,8 @@ sub excel2table {
                           $log .= "$msg\n";
   
                           # replace CR/LF and "
-                          $data{$colname} =~ s/(\r*\n|\r)/<br \/>/gos;
-                          $data{$colname} =~ s/\|/\&\#124;/gos;
+                          $data{$colname} =~ s/(\r*\n|\r)/<br \/>/gs;
+                          $data{$colname} =~ s/\|/\&\#124;/gs;
                           $line .= ' ' . $data{$colname} . ' |';
                           $foundIt = 1;
                           last;    # found the field
@@ -515,22 +515,22 @@ sub excel2table {
                 my $value = $cell->Value;   
                 
                 # replace CR/LF and "
-                $value =~ s/(\r*\n|\r)/<br \/>/gos;
-                $value =~ s/\|/\&\#124;/gos;
+                $value =~ s/(\r*\n|\r)/<br \/>/gs;
+                $value =~ s/\|/\&\#124;/gs;
                 
                 # not a nice way to substitute euro symbol
-                $value =~ s/\[\$.1\]/&euro;/gos;
+                $value =~ s/\[\$.1\]/&euro;/gs;
                 
                 if ($config{DEBUG}) {           
                   Foswiki::Func::writeDebug("( $row , $col ) =>" . $value . "\n" );                    
                 }
                 
                 # Generating the table
-                if($theader) {
-                  $line .= "| *".$value."* ";
+                if ($theader) {
+                  $line .= "| *$value* ";
                 }
                 else {
-                  $line .= "| ".$value." ";
+                  $line .= "| $value ";
                 }        
             }
             
@@ -559,17 +559,17 @@ sub excel2table {
       }
       
       # add filename
-      $table .= "data: $config{UPLOADFILE}.xls\n";
+      #$table .= "data: $config{UPLOADFILE}\n";
       
       last; # only the first sheet
     }
     
     # error printing
     if($table eq "") {
-      my $error = '<font color="red">error: '.$attachedfile.' not found.</font>';
+      my $error = '<span class="foswikiAlert">ERROR: unable to process '.$attachedfile.'</span>';
       return $error;
     }
-  
+
     return $table;
 }
 
@@ -689,8 +689,8 @@ sub uploadexcel2table {
                         $log .= "$msg\n";
 
                         # replace CR/LF and "
-                        $data{$colname} =~ s/(\r*\n|\r)/<br \/>/gos;
-                        $data{$colname} =~ s/\|/\&\#124;/gos;
+                        $data{$colname} =~ s/(\r*\n|\r)/<br \/>/gs;
+                        $data{$colname} =~ s/\|/\&\#124;/gs;
 
                         #$line .= ' ' . $data{$colname} . ' |';
                         $line .= $data{$colname} . '|';

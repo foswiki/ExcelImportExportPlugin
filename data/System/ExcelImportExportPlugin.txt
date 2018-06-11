@@ -1,4 +1,4 @@
-%META:TOPICINFO{author="ProjectContributor" date="1111929255" format="1.0" version="8"}%
+%META:TOPICINFO{author="ProjectContributor" date="1528717541" format="1.1" version="1"}%
 ---+ <nop>ExcelImportExportPlugin
 
 This plugin renders an attached Excel spreadsheet as a Foswiki table, and vice versa. It also provides scripts to generate a set of topics from an Excel spreadsheet, and vice versa. In detail, the plugin supports the following use cases:
@@ -106,7 +106,7 @@ _Note: Additional settings are available, but not yet documented._
 
 _Note: The parameters for the tags and scripts can also be defined in settings._
 
----++ Plugin Installation Instructions
+---++ Installation Instructions
 
 __Note:__ You do not need to install anything on the browser to use this add-on. The following instructions are for the administrator who installs the add-on on the server where Foswiki is running. 
 
@@ -120,13 +120,8 @@ __Note:__ You do not need to install anything on the browser to use this add-on.
 Look at the example in Sandbox...
 
 
----++ Plugin Info
-
-|  Plugin Author: | Foswiki:Main.ThomasWeigert, based on code by Foswiki:Main.ClausLanghans |
-|  Copyright: | &copy; 2001-2008, %SYSTEMWEB%.ProjectContributor |
-|  License: | GPL ([[http://www.gnu.org/copyleft/gpl.html][GNU General Public License]]) |
-|  Plugin Version: | %$VERSION% |
-|  Change History: | <!-- versions below in reverse order -->&nbsp; |
+---++ Change History
+%TABLE{columnwidths="7em" tablewidth="100%"}%
 |  04 Jun 2009: | Adding Ability to generate tables without a foswiki form - Foswiki:Main.SvenHess |
 |  12 Mar 2009: | converted to foswiki - Foswiki:Main.MichaelDaum |
 |  01 Jul 2008: | 4.2.x compatibility, Update Topic data from changed Form definition. - SvenDowideit@wikiring.com |
@@ -136,6 +131,15 @@ Look at the example in Sandbox...
 |  CPAN Dependencies: | <table border="0"><tr><th>Name</th><th>Version</th></tr><tr><td align="left">Spreadsheet::ParseExcel</td><td align="left">Required. Available from [[http://search.cpan.org][CPAN]].</td></tr><tr><td align="left">Spreadsheet::WriteExcel</td><td align="left">Required. Available from [[http://search.cpan.org][CPAN]].</td></tr><tr><td align="left">Date::Manip</td><td align="left">Required. Available from [[http://search.cpan.org][CPAN]].</td></tr></table> |
 |  Other Dependencies: | none |
 |  Perl Version: | 5.005 |
-|  Plugin Home: | http://foswiki.org/Extensions/%TOPIC% |
 |  Feedback: | http://foswiki.org/Extensions/%TOPIC%Dev |
 
+%META:FORM{name="PackageForm"}%
+%META:FIELD{name="Author" title="Author" value="Foswiki:Main.ThomasWeigert, based on code by Foswiki:Main.ClausLanghans"}%
+%META:FIELD{name="Copyright" title="Copyright" value="&copy; 2001-2018, %25SYSTEMWEB%25.ProjectContributor"}%
+%META:FIELD{name="Description" title="Description" value="%25$SHORTDESCRIPTION%25"}%
+%META:FIELD{name="Home" title="Home" value="http://foswiki.org/Extensions/%TOPIC%"}%
+%META:FIELD{name="License" title="License" value="GPL ([[http://www.gnu.org/copyleft/gpl.html][GNU General Public License]])"}%
+%META:FIELD{name="Release" title="Release" value="%$RELEASE%"}%
+%META:FIELD{name="Repository" title="Repository" value="https://github.com/foswiki/%TOPIC%"}%
+%META:FIELD{name="Support" title="Support" value="http://foswiki.org/Support/%TOPIC%"}%
+%META:FIELD{name="Version" title="Version" value="%$VERSION%"}%

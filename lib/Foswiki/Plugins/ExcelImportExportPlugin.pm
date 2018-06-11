@@ -36,13 +36,9 @@ package Foswiki::Plugins::ExcelImportExportPlugin;
 use strict;
 use Foswiki::Func;
 
-use vars qw( $VERSION $RELEASE $debug $pluginName );
-
-$VERSION = '$Rev: 0$';
-
-$RELEASE = 'Foswiki';
-
-$pluginName = 'ExcelImportExportPlugin';
+our $VERSION = '3050';
+our $RELEASE = '11 Jun 2018';
+our $pluginName = 'ExcelImportExportPlugin';
 
 =pod
 
