@@ -1,4 +1,4 @@
-%META:TOPICINFO{author="ProjectContributor" date="1528717541" format="1.1" version="1"}%
+%META:TOPICINFO{author="ProjectContributor" date="1528717712" format="1.1" version="1"}%
 ---+ <nop>ExcelImportExportPlugin
 
 This plugin renders an attached Excel spreadsheet as a Foswiki table, and vice versa. It also provides scripts to generate a set of topics from an Excel spreadsheet, and vice versa. In detail, the plugin supports the following use cases:
@@ -122,6 +122,7 @@ Look at the example in Sandbox...
 
 ---++ Change History
 %TABLE{columnwidths="7em" tablewidth="100%"}%
+|  11 Jun 2018: | fix some persistent perl issues of regexes; don't require =.xls= in parameter | 
 |  04 Jun 2009: | Adding Ability to generate tables without a foswiki form - Foswiki:Main.SvenHess |
 |  12 Mar 2009: | converted to foswiki - Foswiki:Main.MichaelDaum |
 |  01 Jul 2008: | 4.2.x compatibility, Update Topic data from changed Form definition. - SvenDowideit@wikiring.com |
