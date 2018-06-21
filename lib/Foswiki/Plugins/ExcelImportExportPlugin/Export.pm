@@ -189,7 +189,7 @@ sub topics2excel {
                 $inBlock = 1;
             }
             else {
-                if ( $inBlock && s/^\s*\|//o ) {
+                if ( $inBlock && s/^\s*\|// ) {
                     my ( $name, $shortname, $width, $orientation, $type ) =
                       split(/\|/);
 
@@ -372,18 +372,23 @@ sub topics2excel {
         }
     }
 
-    $query->header(-expire => 'now');
-
-   #print "Content-type: application/vnd.ms-excel\n";
-   # The Content-Disposition will generate a prompt to save  the file. If you want
-   # to stream the file to the browser, comment out the following line.
-   #print "Content-Disposition: attachment; filename=$xlsfile\n";
-   #print "\n";
-
-    # The contents of the Excel file is returned to STDOUT
     $workbook->close() or die "Error closing file: $!";
 
-    $session->writeCompletePage($xlsBlob, '', 'application/vnd.ms-excel');
+    my $xlsfile = $config{UPLOADFILE} || $basetopic;
+    $xlsfile .= '.xls' unless $xlsfile =~ /\.xls/;
+
+    my $response = $session->{response};
+    $response->header( 
+        -expire => 'now',
+        -content_disposition => "attachment; filename=$xlsfile",
+        -type => 'application/vnd.ms-excel',
+    );
+
+    $response->body($xlsBlob);
+
+    # SMELL: prevent compression
+    $ENV{'HTTP_ACCEPT_ENCODING'} = ''; 
+    $ENV{'HTTP2'} = ''; 
 }
 
 sub table2excel {
@@ -460,9 +465,6 @@ sub table2excel {
     my $xlsBlob;
     open my $fh, '>', \$xlsBlob or die "Failed to open filehandle: $!";
     binmode($fh);
-
-#  my $xlsfile = $Foswiki::cfg{PubDir}."/$config{UPLOADWEB}/$config{UPLOADTOPIC}/$config{UPLOADFILE}.xls";
-#  $xlsfile = Foswiki::Sandbox::untaintUnchecked( $xlsfile );
 
     # Create a new Excel workbook
     my $workbook = Spreadsheet::WriteExcel->new($fh)
@@ -569,7 +571,7 @@ sub table2excel {
                 $inBlock = 1;
             }
             else {
-                if ( $inBlock && s/^\s*\|//o ) {
+                if ( $inBlock && s/^\s*\|// ) {
                     my ( $name, $shortname, $width, $orientation, $type ) =
                       split(/\|/);
 
@@ -677,13 +679,13 @@ sub table2excel {
     ## SMELL: Need to expand FormQueryPlugin based searches also...
     ## SMELL: What if there are tags in the search?
     $text =~
-s/%SEARCH{(.*)}%/$session->_SEARCH( new Foswiki::Attrs($1), $basetopic, $web )/geo;
+s/%SEARCH\{(.*)\}%/$session->_SEARCH( new Foswiki::Attrs($1), $basetopic, $web )/ge;
 
     my $insideTable = 0;
     my $beforeTable = 0;
     my @labels;
     foreach ( split( /\r?\n/, "$text\n<nop>\n" ) ) {
-        if ( m/\%TABLE2EXCEL/o || m/table2excel/o ) {
+        if ( m/\%TABLE2EXCEL/ || m/table2excel/ ) {
             $beforeTable = 1;
             next;
         }
@@ -701,7 +703,7 @@ s/%SEARCH{(.*)}%/$session->_SEARCH( new Foswiki::Attrs($1), $basetopic, $web )/g
                     # first row is header row
                     unless ( $config{FORM} ) {
                         foreach my $name (@labels) {
-                            $name =~ s/^\*(.*)\*$/$1/o;
+                            $name =~ s/^\*(.*)\*$/$1/;
                             push( @sortorder, $name );
                         }
                         $tablerow = join( "|", @labels )
@@ -788,21 +790,24 @@ s/%SEARCH{(.*)}%/$session->_SEARCH( new Foswiki::Attrs($1), $basetopic, $web )/g
     Foswiki::Func::writeDebug( "Exported " . ( $row - 2 ) . " rows." )
       if $config{DEBUG};
 
-    $query->header( -expire => 'now' );
+    my $xlsfile = $config{UPLOADTOPIC};
+    $xlsfile .= '.xls' unless $xlsfile =~ /\.xls/;
 
-   # The Content-Disposition will generate a prompt to save  the file. If you want
-   # to stream the file to the browser, comment out the following line.
-   #print "Content-Disposition: attachment; filename=$xlsfile\n";
-   #print "\n";
+    my $response = $session->{response};
+    $response->header( 
+        -expire => 'now',
+        -content_disposition => "attachment; filename=$xlsfile",
+        -type => 'application/vnd.ms-excel',
+    );
 
     # The contents of the Excel file
     $workbook->close() or die "Error closing file: $!";
 
-    ## If we store the file in pub, why not create an attachment?
-#  my $url = Foswiki::Func::getScriptUrl( $web, $basetopic, "viewfile" ) . "?rev=;filename=$config{UPLOADFILE}.xls";
-#  Foswiki::Func::redirectCgiQuery( $query, $url );
+    $response->body($xlsBlob);
 
-    $session->writeCompletePage($xlsBlob, '', 'application/vnd.ms-excel');
+    # SMELL: prevent compression
+    $ENV{'HTTP_ACCEPT_ENCODING'} = ''; 
+    $ENV{'HTTP2'} = ''; 
 }
 
 1;
